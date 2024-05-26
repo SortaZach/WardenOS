@@ -1,6 +1,6 @@
 BOOTLOADER = bootloader/target/x86_64-unknown-uefi/debug/bootloader.efi
 TARGET_DIR = boot/EFI/BOOT
-TARGET = $(TARGET_DIR)/BOOT64.efi
+TARGET = $(TARGET_DIR)/BOOTX64.efi
 QEMU = qemu-system-x86_64
 BIOS = /usr/share/qemu/OVMF.fd
 DRIVE = fat:rw:$(HOME)/WardenOS/boot
