@@ -1,0 +1,16 @@
+[package]
+name = "bootloader"
+version = "0.1.0"
+authors = ["Sorta Zach"]
+edition = "2021"
+
+[dependencies]
+
+[build-dependencies]
+cargo-xbuild = "0.5.21"
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"

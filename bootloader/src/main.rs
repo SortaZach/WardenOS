@@ -1,12 +1,11 @@
 #![no_std]
 #![no_main]
-#![feature(abi_efiapi)]
 use core::panic::PanicInfo;
 mod uefi;
 use uefi::*;
 #[no_mangle]
 pub extern "efiapi" fn efi_main(
-        handle: ImageHandle, 
+       _handle: ImageHandle, 
         system_table:*const SystemTable
 ){
  
@@ -16,7 +15,7 @@ pub extern "efiapi" fn efi_main(
   let mut buffer:[u16;1] = [0];
   let utf16 = character.encode_utf16(&mut buffer);
   unsafe{
-   let status = ((*(*system_table).output).output_string)(
+   let _status = ((*(*system_table).output).output_string)(
     (*system_table).output, 
     &utf16[0],
   );
@@ -26,7 +25,7 @@ pub extern "efiapi" fn efi_main(
  let string_arr = ['h' as u16, 'i' as u16, '!' as u16, '\n' as u16, '\0' as u16];
  
  unsafe{
-  let status = ((*(*system_table).output).output_string)(
+  let _status = ((*(*system_table).output).output_string)(
    (*system_table).output, 
    &string_arr[0],
   );
