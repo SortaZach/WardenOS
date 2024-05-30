@@ -51,7 +51,6 @@ type OutputString = extern "efiapi" fn(
 pub type NewTpl = usize;
 pub type RaiseTpl = extern "efiapi" fn(efi_tpl: NewTpl) -> NewTpl;
 pub type RestoreTpl = extern "efiapi" fn(old_tpl: NewTpl);
-pub type Status = usize;
 
 
 // ** MEMORY SERVICES **
@@ -97,7 +96,7 @@ pub type FreePages = extern "efiapi" fn(
 pub type VirtualAddress = u64;
 
 pub struct MemoryDescriptor {
-    type: u32,
+    r#type: u32, 
     physical_start: &mut PhysicalAddress,
     virtual_start: &mut VirtualAddress,
     number_of_pages: u64,
@@ -127,7 +126,7 @@ pub type FreePool = extern "efiapi" fn( buffer: VoidPtr) -> Status;
 pub type Event = VoidPtr;
 
 pub type CreateEvent = extern "efiapi" fn( 
-    type: u32,
+    r#type: u32,
     notify_tpl: NewTpl,
     event: Event,
 ) -> Status;
@@ -141,7 +140,7 @@ pub enum TimerDelay {
 
 pub type SetTimer = extern "efiapi" fn(
     event: Event,
-    type: TimerDelay,
+    r#type: TimerDelay,
     trigger_time: u64,
 ) -> Status;
 
@@ -161,7 +160,7 @@ pub struct GUID {
     data1: u32,
     data2: u16,
     data3: u16,
-    data4[8]: u8,
+    data4: u8,
 }
 
 #[repr(u32)]
@@ -206,7 +205,7 @@ pub enum LocateSearchType {
     AllHandles,
     ByRegisterNotify,
     ByProtocol,
-};
+}
 
 pub type LocateHandle = extern "efiapi" fn(
     search_type: LocateSearchType,
@@ -216,7 +215,7 @@ pub type LocateHandle = extern "efiapi" fn(
 
 pub type LocateDevicePath = extern "efiapi" fn(
     protocol: *mut GUID,
-    device_path: *mut *DevicePathProtocol,
+    device_path: *mut DevicePathProtocol,
     device: *mut ImageHandle,
 ) -> Status;
 
@@ -230,7 +229,7 @@ pub type InstallConfigurationTable = extern "efiapi" fn(
 pub type LoadImage = extern "efiapi" fn(
     boot_policy: bool,
     parent_image_handle: ImageHandle,
-    device_path: *mut DevicePathProtocol,
+    device_path: *mut *mut DevicePathProtocol,
     source_size: usize,
     image_handle: *mut ImageHandle, 
 ) -> Status;
@@ -276,7 +275,7 @@ pub type DisconnectController = extern "efiapi" fn(
 // ** OPEN AND CLOSE PROTOCOL SERVICES **
 pub type OpenProtocol = extern "efiapi" fn(
     handle: ImageHandle,
-    protocol: mut* GUID,
+    protocol: *mut GUID,
     agent_handle: ImageHandle,
     controller_handle: ImageHandle,
     attributes: u32,
@@ -284,7 +283,7 @@ pub type OpenProtocol = extern "efiapi" fn(
 
 pub type CloseProtocol = extern "efiapi" fn(
     handle: ImageHandle,
-    protocol: mut* GUID,
+    protocol: *mut GUID,
     agent_handle: ImageHandle,
     controller_handle: ImageHandle,
 ) -> Status;
@@ -298,35 +297,35 @@ pub struct OpenProtocolInformationEntry {
 
 pub type OpenProtocolInformation = extern "efiapi" fn(
     handle: ImageHandle,
-    protocol: mut* GUID,
-    entry_buffer: mut** OpenProtocolInformationEntry,
-    entry_count: mut* usize,
+    protocol: *mut GUID,
+    entry_buffer: *mut *mut OpenProtocolInformationEntry,
+    entry_count: *mut usize,
 ) -> Status;
 
 
 //** LIBRARY SERVICES ** 
 pub type ProtocolsPerHandle = extern "efiapi" fn(
     handle: ImageHandle,
-    protocol_buffer: mut*** GUID,
-    protocol_buffer_count: mut* usize,
+    protocol_buffer: *mut *mut *mut GUID,
+    protocol_buffer_count: *mut usize,
 ) -> Status;
 
 
 pub type LocateHandleBuffer = extern "efiapi" fn(
     search_type: LocateSearchType,
-    no_handle: mut* usize,
-    buffer: mut** ImageHandle,
+    no_handle: *mut usize,
+    buffer: *mut *mut ImageHandle,
 ) -> Status;
 
 pub type LocateProtocol = extern "efiapi" fn(
-    protocol: mut* GUID,
-    interface: mut* VoidPtr,
+    protocol: *mut GUID,
+    interface: *mut VoidPtr,
 ) -> Status;
 
 pub type InstallMultipleProtocolInterfaces = extern "efiapi" fn( handle: mut* ImageHandle ) -> Status;
 pub type UninstallMultipleProtocolInterfaces = extern "efiapi" fn(
     handle: ImageHandle,
-    protocol: mut* GUID,
+    protocol: *mut GUID,
     interface: VoidPtr,
 ) -> Status;
 
@@ -335,7 +334,7 @@ pub type UninstallMultipleProtocolInterfaces = extern "efiapi" fn(
 pub type CalculateCrc32 = extern "efiapi" fn(
     data: VoidPtr,
     data_size: usize,
-    crc32: mut* u32,
+    crc32: *mut u32,
 ) -> Status;
 
 

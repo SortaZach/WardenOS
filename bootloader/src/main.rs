@@ -1,7 +1,7 @@
 #![no_std]
 #![no_main]
 use core::panic::PanicInfo;
-mod uefi;
+pub mod uefi;
 use uefi::*;
 #[no_mangle]
 pub extern "efiapi" fn efi_main(
