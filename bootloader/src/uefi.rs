@@ -40,6 +40,7 @@ pub struct TextOutputProtocol{
     enable_cursor: u64,
     mode: u64,
 }
+
 type OutputString = extern "efiapi" fn(
  output_protocol:*const TextOutputProtocol,
  string :*const u16
@@ -154,8 +155,8 @@ pub type SignalEvent = extern "efiapi" fn( event: Event ) -> Status;
 pub type CloseEvent = extern "efiapi" fn( event: Event ) -> Status;
 pub type CheckEvent = extern "efiapi" fn( event: Event ) -> Status;
 
-// ** PROTOCOL HANDLER SERVICES **
 
+// ** PROTOCOL HANDLER SERVICES **
 pub struct GUID {
     data1: u32,
     data2: u16,
@@ -251,6 +252,111 @@ pub type ExitBootServices = extern "efiapi" fn(
     map_key: usize,
 );
 
+
+// ** MISCELLANEOUS SERVICES **
+pub type GetNextMonotonicCount = extern "efiapi" fn( count: *mut u64) -> Status;
+pub type Stall = extern "efiapi" fn( microseconds: usize) -> Status;
+pub type SetWatchdogTimer = extern "efiapi" fn(
+    timeout: usize,
+    watchdog_code: u64,
+    data_size: usize,
+) -> Status;
+
+
+// ** DRIVER SUPPORT **
+pub type ConnectController = extern "efiapi" fn(
+    controller_handle: ImageHandle,
+    recursive: bool,
+) -> Status;
+pub type DisconnectController = extern "efiapi" fn(
+    controller_handle: ImageHandle,
+) -> Status;
+
+
+// ** OPEN AND CLOSE PROTOCOL SERVICES **
+pub type OpenProtocol = extern "efiapi" fn(
+    handle: ImageHandle,
+    protocol: mut* GUID,
+    agent_handle: ImageHandle,
+    controller_handle: ImageHandle,
+    attributes: u32,
+) -> Status;
+
+pub type CloseProtocol = extern "efiapi" fn(
+    handle: ImageHandle,
+    protocol: mut* GUID,
+    agent_handle: ImageHandle,
+    controller_handle: ImageHandle,
+) -> Status;
+
+pub struct OpenProtocolInformationEntry {
+    agent_handle: ImageHandle,
+    controller_handle: ImageHandle,
+    attributes: u32,
+    open_count: u32,
+}
+
+pub type OpenProtocolInformation = extern "efiapi" fn(
+    handle: ImageHandle,
+    protocol: mut* GUID,
+    entry_buffer: mut** OpenProtocolInformationEntry,
+    entry_count: mut* usize,
+) -> Status;
+
+
+//** LIBRARY SERVICES ** 
+pub type ProtocolsPerHandle = extern "efiapi" fn(
+    handle: ImageHandle,
+    protocol_buffer: mut*** GUID,
+    protocol_buffer_count: mut* usize,
+) -> Status;
+
+
+pub type LocateHandleBuffer = extern "efiapi" fn(
+    search_type: LocateSearchType,
+    no_handle: mut* usize,
+    buffer: mut** ImageHandle,
+) -> Status;
+
+pub type LocateProtocol = extern "efiapi" fn(
+    protocol: mut* GUID,
+    interface: mut* VoidPtr,
+) -> Status;
+
+pub type InstallMultipleProtocolInterfaces = extern "efiapi" fn( handle: mut* ImageHandle ) -> Status;
+pub type UninstallMultipleProtocolInterfaces = extern "efiapi" fn(
+    handle: ImageHandle,
+    protocol: mut* GUID,
+    interface: VoidPtr,
+) -> Status;
+
+
+//** 32-BIT CRC SERVICES **
+pub type CalculateCrc32 = extern "efiapi" fn(
+    data: VoidPtr,
+    data_size: usize,
+    crc32: mut* u32,
+) -> Status;
+
+
+//** MISCELLANEOUS SERVICES **
+pub type CopyMem = extern "efiapi" fn(
+    destination: VoidPtr,
+    source: VoidPtr,
+    length: usize,
+) -> Status;
+
+pub type SetMem = extern "efiapi" fn(
+    buffer: VoidPtr,
+    size: usize,
+    value: u8,
+) -> Status;
+
+pub type CreateEventEx = extern "efiapi" fn(
+    type: u32,
+    notify_tpl: NewTpl,
+    event: Event,
+) -> Status;
 
 pub struct BootServices{
     header: Hdr,
