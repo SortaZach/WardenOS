@@ -1,8 +1,12 @@
 #![no_std]
 #![no_main]
 use core::panic::PanicInfo;
+
 pub mod uefi;
 use uefi::*;
+
+use crate::boot_services::*;
+
 #[no_mangle]
 pub extern "efiapi" fn efi_main(
        _handle: ImageHandle, 
