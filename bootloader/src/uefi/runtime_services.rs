@@ -1,6 +1,11 @@
 use crate::Hdr;
-use crate::ImageHandler;
+use crate::ImageHandle;
 use crate::Status;
+use crate::MemoryDescriptor;
+use crate::VoidPtr;
+use crate::GUID;
+use crate::PhysicalAddress;
+
 
 // ** TIME SERVICES **
 
@@ -29,7 +34,7 @@ pub type GetTime = extern "efiapi" fn(
     capabilities: *mut TimeCapabilities,
 ) -> Status; 
 
-pub type SetTime = extern"efiapi" fn( time: *mut Time) -> Status;
+pub type SetTime = extern "efiapi" fn( time: *mut Time) -> Status;
 
 pub type GetWakeupTime = extern "efiapi" fn(
     enabled: *mut bool,
@@ -57,18 +62,70 @@ pub type ConvertPointer = extern "efiapi" fn(
 
 
 // ** VARIABLE SERVICES **
-pub type GetVariable = extern "efiapi" fn() -> Status;
-pub type GetNextVariableName = extern "efiapi" fn() -> Status;
-pub type SetVariable = extern "efiapi" fn() -> Status;
+pub type GetVariable = extern "efiapi" fn(
+    variable_name: *mut u16,
+    vendor_guid: GUID,
+    attributes: *mut u32,
+    data_sizes: *mut usize,
+    data: VoidPtr,
+) -> Status;
+
+pub type GetNextVariableName = extern "efiapi" fn(
+    variable_name_size: *mut usize,
+    variable_name: *mut u16,
+    vendor_guid: *mut GUID,
+) -> Status;
+
+pub type SetVariable = extern "efiapi" fn(
+    variable_name: *mut u16,
+    vendor_guid: *mut GUID,
+    attributes: u32,
+    data_size: usize,
+    data: VoidPtr,
+) -> Status;
 
 // ** MISCELLANEOUS SERVICES **
-pub type GetNextHighMonoCount = extern "efiapi" fn() -> Status;
-pub type ResetSystem = extern "efiapi" fn() -> Status;
+pub type GetNextHighMonotonicCount = extern "efiapi" fn(
+    high_count: u32,
+) -> Status;
+
+#[repr(u32)]
+pub enum ResetType {
+    ResetCold,
+    ResetWarm,
+    ResetShutdown,
+    ResetPlatformSpecific,
+}
+
+pub type ResetSystem = extern "efiapi" fn(
+    reset_type: ResetType,
+    reset_status: Status,
+    data_size: usize,
+    reset_data: VoidPtr,
+);
 
 
 // ** UEFI 2.0 CAPSULE SERVICES **
-pub type UpdateCapsule = extern "efiapi" fn() -> Status;
-pub type QueryVariableInfo = extern "efiapi" fn() -> Status;
+pub struct CapsuleHeader {
+    capsule_guid: GUID,
+    header_size: u32,
+    flags: u32,
+    capsule_image_size: u32,
+}
+
+pub type UpdateCapsule = extern "efiapi" fn(
+    capsule_header_array: *mut *mut CapsuleHeader,
+    capsule_count: usize,
+    scatter_gather_list: PhysicalAddress,
+) -> Status;
+
+pub type QueryVariableInfo = extern "efiapi" fn(
+    attrabutes: u32,
+    maximum_variable_storage_size: *mut u64,
+    remaining_variable_storage_size: *mut u64,
+    maximum_variable_size: *mut u64,
+) -> Status;
+
 pub struct RuntimeService {
     pub header: Hdr,
 
@@ -88,7 +145,7 @@ pub struct RuntimeService {
     set_variable: SetVariable,
 
     // Miscellaneous Services
-    get_next_high_monotonic_count: GetNextHighMonoCount,
+    get_next_high_monotonic_count: GetNextHighMonotonicCount,
     reset_system: ResetSystem,
 
     // UEFI 2.0 Capsule Services

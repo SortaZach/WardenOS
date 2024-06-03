@@ -1,5 +1,5 @@
 use crate::Hdr;
-use crate::ImageHandler;
+use crate::ImageHandle;
 use crate::Status;
 
 
@@ -111,6 +111,7 @@ pub type CloseEvent = extern "efiapi" fn(event: Event) -> Status;
 pub type CheckEvent = extern "efiapi" fn(event: Event) -> Status;
 
 // ** PROTOCOL HANDLER SERVICES **
+#[repr(C)]
 pub struct GUID {
     pub data1: u32,
     pub data2: u16,
